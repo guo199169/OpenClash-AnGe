@@ -1,10 +1,13 @@
 name: Auto Sync OpenClash & AnGe-ClashBoard
 
-# 触发条件：每天北京时间凌晨 3 点自动运行，并允许手动触发
 on:
   schedule:
-    - cron: "0 19 * * *" # UTC 时间 19:00 = 北京时间 03:00
+    - cron: "0 19 * * *"
   workflow_dispatch:
+
+# 【关键修复1】显式赋予 GitHub Actions 写入你仓库的权限
+permissions:
+  contents: write
 
 jobs:
   build-and-sync:
@@ -15,55 +18,46 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sync OpenClash and Integrate AnGe-ClashBoard
+      - name: Sync and Integrate
         run: |
-          # 1. 设置 Git 提交身份
+          set -e # 遇到任何错误立即停止，方便排错
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 2. 将当前分支强制同步到 OpenClash 最新的 master 分支
-          git remote add upstream https://github.com/vernesong/openclash.git
+          echo "=> 1. 获取 OpenClash 最新源码..."
+          git remote add upstream https://github.com/vernesong/openclash.git || true
           git fetch upstream master
-          git reset --hard upstream/master
+          
+          # 【关键修复2】强制绑定并检出到 main 分支，避免 master/main 命名冲突
+          git checkout -B main upstream/master
 
-          # 3. 创建 OpenClash 存放面板的目标目录
+          echo "=> 2. 创建面板存放目录..."
           PANEL_DIR="luci-app-openclash/root/usr/share/openclash/ui/ange"
-          mkdir -p $PANEL_DIR
+          mkdir -p "$PANEL_DIR"
 
-          # 4. 获取最新的 AnGe-ClashBoard
-          echo "正在获取 AnGe-ClashBoard..."
-          
-          # 尝试通过 GitHub API 获取最新 Release 中的 zip (处理作者发布打包的情况)
-          RELEASE_URL=$(curl -s https://api.github.com/repos/liandu2024/AnGe-ClashBoard/releases/latest | grep "browser_download_url" | grep -i "dist.zip" | cut -d '"' -f 4 || true)
-          
-          if [ -n "$RELEASE_URL" ]; then
-            echo "发现 Release，正在下载：$RELEASE_URL"
-            wget -qO ange.zip "$RELEASE_URL"
-            unzip -q ange.zip -d ange_dist
-            # 复制 dist 目录下的所有文件到面板目录
-            cp -r ange_dist/* $PANEL_DIR/
-            rm -rf ange.zip ange_dist
+          echo "=> 3. 拉取 AnGe-ClashBoard 最新源码..."
+          # 【关键修复3】直接拉取源码，规避 Release 压缩包命名不规范导致的下载失败
+          git clone --depth 1 https://github.com/liandu2024/AnGe-ClashBoard.git ange_temp
+
+          if [ -d "ange_temp/dist" ]; then
+            echo "发现 dist 目录，正在复制..."
+            cp -r ange_temp/dist/* "$PANEL_DIR/"
           else
-            echo "未找到 Release zip，尝试直接拉取仓库源码..."
-            git clone --depth 1 https://github.com/liandu2024/AnGe-ClashBoard.git ange_temp
-            # 兼容处理：检查是否存在 dist 目录，如果有则复制 dist，否则复制全部静态文件
-            if [ -d "ange_temp/dist" ]; then
-              cp -r ange_temp/dist/* $PANEL_DIR/
-            else
-              cp -r ange_temp/* $PANEL_DIR/
-            fi
-            rm -rf ange_temp
+            echo "未发现 dist 目录，正在复制全部静态文件..."
+            # 使用 rsync 排除 .git 目录，防止嵌套 git 仓库导致报错
+            rsync -av --exclude='.git' ange_temp/ "$PANEL_DIR/"
           fi
+          rm -rf ange_temp
 
-          # 5. 提交整合后的代码
-          git add $PANEL_DIR
+          echo "=> 4. 提交并推送到你的仓库..."
+          git add "$PANEL_DIR"
           
-          # 检查是否有文件变动
           if ! git diff --staged --quiet; then
             git commit -m "Auto-sync: 整合最新 OpenClash 与 AnGe-ClashBoard ($(date +'%Y-%m-%d'))"
-            # 强制推送到你的仓库 (因为 reset 了历史记录，必须强制推送)
-            git push -f origin HEAD
-            echo "✅ 整合完成并已推送到仓库！"
+            # 强制推送到你的 main 分支
+            git push -f origin main
+            echo "✅ 整合成功！代码已推送到 main 分支。"
           else
-            echo "ℹ️ 面板文件没有变化，仓库已是最新状态。"
+            echo "ℹ️ 代码已经是最新，无需更新。"
           fi

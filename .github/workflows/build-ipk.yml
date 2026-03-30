@@ -1,6 +1,5 @@
 name: Build OpenClash IPK
 
-# 触发条件：手动触发，或者在代码同步完成后自动触发
 on:
   workflow_dispatch:
   workflow_run:
@@ -23,14 +22,15 @@ jobs:
       - name: Download OpenWrt SDK
         run: |
           echo "下载 OpenWrt SDK..."
-          # 使用官方 SDK 编译（OpenClash 插件不区分 CPU 架构，用 x86 SDK 编译出来的包适用于所有路由器）
           wget -q https://downloads.openwrt.org/releases/23.05.3/targets/x86/64/openwrt-sdk-23.05.3-x86-64_gcc-12.3.0_musl.Linux-x86_64.tar.xz
           tar Jxf openwrt-sdk-*.tar.xz
+          rm openwrt-sdk-*.tar.xz
           mv openwrt-sdk-* sdk
 
       - name: Compile OpenClash IPK
         run: |
           echo "准备编译环境..."
+          # 将当前仓库里整合好的 OpenClash 代码复制到 SDK 的 package 目录下
           cp -r luci-app-openclash sdk/package/
           cd sdk
           ./scripts/feeds update -a
@@ -38,7 +38,6 @@ jobs:
           make defconfig
           
           echo "开始编译 OpenClash..."
-          # 只编译 OpenClash 插件
           make package/luci-app-openclash/compile V=s
 
       - name: Upload IPK Artifact

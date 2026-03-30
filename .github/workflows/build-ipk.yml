@@ -18,6 +18,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential gawk gettext git libncurses5-dev libssl-dev python3 unzip wget zlib1g-dev
+          
+          # 【新增的关键修复】专门下载并安装 po2lmo 语言转换工具
+          echo "安装 po2lmo 工具..."
+          git clone https://github.com/openwrt-dev/po2lmo.git
+          cd po2lmo
+          make && sudo make install
 
       - name: Download OpenWrt SDK
         run: |
@@ -30,7 +36,6 @@ jobs:
       - name: Compile OpenClash IPK
         run: |
           echo "准备编译环境..."
-          # 将当前仓库里整合好的 OpenClash 代码复制到 SDK 的 package 目录下
           cp -r luci-app-openclash sdk/package/
           cd sdk
           ./scripts/feeds update -a

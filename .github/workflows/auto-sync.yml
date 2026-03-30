@@ -5,10 +5,6 @@ on:
     - cron: "0 19 * * *"
   workflow_dispatch:
 
-# 【关键修复1】显式赋予 GitHub Actions 写入你仓库的权限
-permissions:
-  contents: write
-
 jobs:
   build-and-sync:
     runs-on: ubuntu-latest
@@ -17,47 +13,42 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # 这里调用我们刚刚配置的高级令牌，解决权限不足的问题
+          token: ${{ secrets.SYNC_TOKEN }} 
 
       - name: Sync and Integrate
         run: |
-          set -e # 遇到任何错误立即停止，方便排错
+          set -e
 
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          echo "=> 1. 获取 OpenClash 最新源码..."
+          echo "=> 1. 获取 OpenClash 最新源码并合并..."
           git remote add upstream https://github.com/vernesong/openclash.git || true
           git fetch upstream master
           
-          # 【关键修复2】强制绑定并检出到 main 分支，避免 master/main 命名冲突
-          git checkout -B main upstream/master
+          # 改用 merge 合并代码，这样既能拿到官方最新代码，又不会删掉我们自己的脚本
+          git merge upstream/master -m "Auto-merge upstream OpenClash" --allow-unrelated-histories || true
 
           echo "=> 2. 创建面板存放目录..."
           PANEL_DIR="luci-app-openclash/root/usr/share/openclash/ui/ange"
           mkdir -p "$PANEL_DIR"
 
           echo "=> 3. 拉取 AnGe-ClashBoard 最新源码..."
-          # 【关键修复3】直接拉取源码，规避 Release 压缩包命名不规范导致的下载失败
           git clone --depth 1 https://github.com/liandu2024/AnGe-ClashBoard.git ange_temp
-
           if [ -d "ange_temp/dist" ]; then
-            echo "发现 dist 目录，正在复制..."
             cp -r ange_temp/dist/* "$PANEL_DIR/"
           else
-            echo "未发现 dist 目录，正在复制全部静态文件..."
-            # 使用 rsync 排除 .git 目录，防止嵌套 git 仓库导致报错
             rsync -av --exclude='.git' ange_temp/ "$PANEL_DIR/"
           fi
           rm -rf ange_temp
 
-          echo "=> 4. 提交并推送到你的仓库..."
-          git add "$PANEL_DIR"
+          echo "=> 4. 提交并推送..."
+          git add .
           
-          if ! git diff --staged --quiet; then
-            git commit -m "Auto-sync: 整合最新 OpenClash 与 AnGe-ClashBoard ($(date +'%Y-%m-%d'))"
-            # 强制推送到你的 main 分支
-            git push -f origin main
-            echo "✅ 整合成功！代码已推送到 main 分支。"
-          else
-            echo "ℹ️ 代码已经是最新，无需更新。"
-          fi
+          # 无论是否有变更都执行提交（如果没有变更 commit 会失败，加 || true 忽略）
+          git commit -m "Auto-sync: 整合 OpenClash 与 AnGe-ClashBoard ($(date +'%Y-%m-%d'))" || true
+          
+          # 推送到当前分支
+          git push origin HEAD
+          echo "✅ 同步与整合完毕，代码已推送到仓库！"

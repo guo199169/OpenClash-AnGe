@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.82](https://github.com/liandu2024/AnGe-ClashBoard/compare/v1.81...v1.82) (2026-03-31)
+
+### Bug Fixes
+
+* refine the icon-settings custom icon section by restoring the original visual style, enlarging the effective click target without changing the overall look, removing duplicate collapse arrows, tightening tab height and font weight, and aligning the expand/collapse control size and hover feedback with the surrounding action buttons
+
+## [1.81](https://github.com/liandu2024/AnGe-ClashBoard/compare/v1.80...v1.81) (2026-03-31)
+
+### Bug Fixes
+
+* refine the connections table layout by restoring reliable header/body alignment, tightening the compact column spacing, keeping grouped type and source-IP labels readable, restoring the header divider, and returning the close icon size to the expected appearance
+
+## [1.80](https://github.com/liandu2024/AnGe-ClashBoard/compare/v1.79...v1.80) (2026-03-31)
+
+### Features
+
+* allow text selection and right-click copying in the connections table without opening rows by mistake
+* align domain penetration tables with the connections table style, including zebra rows and tighter row height
+* keep domain penetration header corners stable while scrolling and remove the stray rounded bottom corners on selected rows
+* keep the custom icon settings panel within the settings page max width so long icon URLs no longer overflow the layout
+* refine proxy group domain-penetration action hover colors for both light and dark themes
+
 ## [1.79](https://github.com/liandu2024/AnGe-ClashBoard/compare/v1.78...v1.79) (2026-03-30)
 
 ### Bug Fixes

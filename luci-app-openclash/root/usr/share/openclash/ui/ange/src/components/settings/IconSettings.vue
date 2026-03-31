@@ -1,188 +1,201 @@
 <template>
-  <div class="icon-settings-shell flex flex-col gap-3">
-    <div class="icon-settings-header flex items-center justify-between gap-3">
-      <div class="settings-title icon-settings-title py-0">
-        {{ $t('icon') }}
-      </div>
-      <div class="icon-settings-trigger flex items-center gap-2">
-        {{ $t('customIcon') }}
-        <template v-if="iconReflectList.length"> ({{ iconReflectList.length }}) </template>
-        <button
+  <div class="icon-settings-panel flex w-full max-w-[min(100%,var(--container-7xl))] min-w-0 flex-col gap-3 overflow-x-hidden">
+    <div class="icon-settings-shell flex w-full min-w-0 flex-col gap-3 overflow-x-hidden">
+      <div class="icon-settings-header flex items-center justify-between gap-3">
+        <div class="settings-title icon-settings-title py-0">
+          {{ $t('icon') }}
+        </div>
+        <div
           v-if="iconReflectList.length"
-          class="btn btn-sm btn-circle"
-          @click="dialogVisible = !dialogVisible"
+          class="icon-settings-trigger group flex items-center gap-2 select-none cursor-pointer"
+          role="button"
+          tabindex="0"
+          @click="toggleDialogVisible"
+          @keydown.enter.prevent="toggleDialogVisible"
+          @keydown.space.prevent="toggleDialogVisible"
         >
-          <ChevronUpIcon
-            v-if="dialogVisible"
-            class="h-4 w-4"
-          />
-          <ChevronDownIcon
-            v-else
-            class="h-4 w-4"
-          />
+          <span>{{ $t('customIcon') }}</span>
+          <span>({{ iconReflectList.length }})</span>
+          <span
+            class="btn btn-sm btn-circle pointer-events-none shrink-0 transition-colors group-hover:bg-base-300"
+            aria-hidden="true"
+          >
+            <ChevronUpIcon
+              v-if="dialogVisible"
+              class="h-4 w-4"
+            />
+            <ChevronDownIcon
+              v-else
+              class="h-4 w-4"
+            />
+          </span>
+        </div>
+        <div
+          v-else
+          class="icon-settings-trigger flex items-center gap-2"
+        >
+          {{ $t('customIcon') }}
+        </div>
+      </div>
+      <div
+        v-if="dialogVisible && iconReflectList.length"
+        class="icon-settings-tabs bg-base-200 inline-flex h-10 items-center gap-1 rounded-field p-0.5"
+      >
+        <button
+          class="btn btn-sm h-8 min-h-8 rounded-field border-none px-4 font-normal"
+          :class="activeTab === 'policy' ? 'btn-primary' : 'btn-ghost bg-transparent'"
+          @click="activeTab = 'policy'"
+        >
+          {{ $t('policyGroup') }} ({{ policyGroupIcons.length }})
+        </button>
+        <button
+          class="btn btn-sm h-8 min-h-8 rounded-field border-none px-4 font-normal"
+          :class="activeTab === 'node' ? 'btn-primary' : 'btn-ghost bg-transparent'"
+          @click="activeTab = 'node'"
+        >
+          {{ $t('nodeGroup') }} ({{ nodeGroupIcons.length }})
+        </button>
+        <button
+          class="btn btn-sm h-8 min-h-8 rounded-field border-none px-4 font-normal"
+          :class="activeTab === 'other' ? 'btn-primary' : 'btn-ghost bg-transparent'"
+          @click="activeTab = 'other'"
+        >
+          {{ $t('other') }} ({{ otherIcons.length }})
         </button>
       </div>
     </div>
     <div
-      v-if="dialogVisible && iconReflectList.length"
-      class="icon-settings-tabs tabs tabs-box bg-base-200 inline-grid h-10 grid-cols-3 p-1"
+      v-show="dialogVisible"
+      class="icon-settings-content w-full min-w-0"
     >
-      <button
-        class="tab h-8 min-h-8"
-        :class="activeTab === 'policy' ? 'tab-active' : ''"
-        @click="activeTab = 'policy'"
-      >
-        {{ $t('policyGroup') }} ({{ policyGroupIcons.length }})
-      </button>
-      <button
-        class="tab h-8 min-h-8"
-        :class="activeTab === 'node' ? 'tab-active' : ''"
-        @click="activeTab = 'node'"
-      >
-        {{ $t('nodeGroup') }} ({{ nodeGroupIcons.length }})
-      </button>
-      <button
-        class="tab h-8 min-h-8"
-        :class="activeTab === 'other' ? 'tab-active' : ''"
-        @click="activeTab = 'other'"
-      >
-        {{ $t('other') }} ({{ otherIcons.length }})
-      </button>
-    </div>
-  </div>
-  <div
-    class="transparent-collapse collapse rounded-none shadow-none"
-    :class="dialogVisible ? 'collapse-open' : ''"
-  >
-    <div class="collapse-content p-0">
-      <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
-        <template v-if="dialogVisible">
+      <div class="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 overflow-x-hidden md:grid-cols-2">
+        <div
+          v-for="iconReflect in filteredIconReflectList"
+          :key="iconReflect.uuid"
+          class="flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden"
+        >
+          <TextInput
+            class="w-32"
+            v-model="iconReflect.name"
+            :placeholder="$t('groupName')"
+          />
+          <ArrowRightCircleIcon class="h-4 w-4 shrink-0" />
           <div
-            v-for="iconReflect in filteredIconReflectList"
-            :key="iconReflect.uuid"
-            class="flex items-center gap-2"
+            class="bg-base-200 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden"
+            :class="hasPreview(iconReflect.icon) ? '' : 'text-base-content/50 text-xs'"
+          >
+            <img
+              v-if="hasPreview(iconReflect.icon)"
+              :src="iconReflect.icon"
+              alt="icon preview"
+              class="h-5 w-5 object-contain"
+            />
+            <span v-else>?</span>
+          </div>
+          <div
+            class="min-w-0 flex-1 overflow-hidden"
+            :class="dragTargetKey === iconReflect.uuid ? 'ring-primary rounded-field ring-1' : ''"
+            @dragenter.prevent="dragTargetKey = iconReflect.uuid"
+            @dragover.prevent="dragTargetKey = iconReflect.uuid"
+            @dragleave.prevent="clearDragTarget(iconReflect.uuid)"
+            @drop.prevent="handleDrop(iconReflect.uuid, $event, iconReflect)"
           >
             <TextInput
-              class="w-32"
-              v-model="iconReflect.name"
-              :placeholder="$t('groupName')"
-            />
-            <ArrowRightCircleIcon class="h-4 w-4 shrink-0" />
-            <div
-              class="bg-base-200 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden"
-              :class="hasPreview(iconReflect.icon) ? '' : 'text-base-content/50 text-xs'"
+              class="w-full min-w-0 max-w-full"
+              :model-value="getIconDisplayValue(iconReflect.uuid, iconReflect.icon)"
+              placeholder="Icon URL"
+              @update:modelValue="
+                updateIconFromInput(iconReflect.uuid, iconReflect, $event || '')
+              "
             >
-              <img
-                v-if="hasPreview(iconReflect.icon)"
-                :src="iconReflect.icon"
-                alt="icon preview"
-                class="h-5 w-5 object-contain"
-              />
-              <span v-else>?</span>
-            </div>
-            <div
-              class="flex-1"
-              :class="dragTargetKey === iconReflect.uuid ? 'ring-primary rounded-field ring-1' : ''"
-              @dragenter.prevent="dragTargetKey = iconReflect.uuid"
-              @dragover.prevent="dragTargetKey = iconReflect.uuid"
-              @dragleave.prevent="clearDragTarget(iconReflect.uuid)"
-              @drop.prevent="handleDrop(iconReflect.uuid, $event, iconReflect)"
-            >
-              <TextInput
-                :model-value="getIconDisplayValue(iconReflect.uuid, iconReflect.icon)"
-                placeholder="Icon URL"
-                @update:modelValue="
-                  updateIconFromInput(iconReflect.uuid, iconReflect, $event || '')
-                "
-              >
-                <template #suffix>
-                  <button
-                    v-if="iconReflect.icon"
-                    class="btn btn-ghost btn-xs h-6 min-h-6 w-6 min-w-6 p-0"
-                    @click="copyIcon(iconReflect.icon)"
-                  >
-                    <DocumentDuplicateIcon class="h-3.5 w-3.5 shrink-0" />
-                  </button>
-                </template>
-              </TextInput>
-            </div>
-            <button
-              class="btn btn-sm btn-circle"
-              @click="selectIconFile(iconReflect)"
-            >
-              <ArrowUpTrayIcon class="h-4 w-4 shrink-0" />
-            </button>
-            <button
-              class="btn btn-sm btn-circle"
-              @click="removeIconReflect(iconReflect.uuid)"
-            >
-              <TrashIcon class="h-4 w-4 shrink-0" />
-            </button>
+              <template #suffix>
+                <button
+                  v-if="iconReflect.icon"
+                  class="btn btn-ghost btn-xs h-6 min-h-6 w-6 min-w-6 p-0"
+                  @click="copyIcon(iconReflect.icon)"
+                >
+                  <DocumentDuplicateIcon class="h-3.5 w-3.5 shrink-0" />
+                </button>
+              </template>
+            </TextInput>
           </div>
-        </template>
+          <button
+            class="btn btn-sm btn-circle"
+            @click="selectIconFile(iconReflect)"
+          >
+            <ArrowUpTrayIcon class="h-4 w-4 shrink-0" />
+          </button>
+          <button
+            class="btn btn-sm btn-circle"
+            @click="removeIconReflect(iconReflect.uuid)"
+          >
+            <TrashIcon class="h-4 w-4 shrink-0" />
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="flex items-center gap-2">
-    <TextInput
-      class="w-32"
-      v-model="newIconReflect.name"
-      placeholder="Name"
-      :menus="
-        proxyGroupList.filter((group) => !iconReflectList.some((item) => item.name === group))
-      "
-      @keydown.enter="addIconReflect"
-    />
-    <ArrowRightCircleIcon class="h-4 w-4 shrink-0" />
-    <div
-      class="bg-base-200 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden"
-      :class="hasPreview(newIconReflect.icon) ? '' : 'text-base-content/50 text-xs'"
-    >
-      <img
-        v-if="hasPreview(newIconReflect.icon)"
-        :src="newIconReflect.icon"
-        alt="icon preview"
-        class="h-5 w-5 object-contain"
-      />
-      <span v-else>?</span>
-    </div>
-    <div
-      class="flex-1"
-      :class="dragTargetKey === NEW_ICON_DRAG_KEY ? 'ring-primary rounded-field ring-1' : ''"
-      @dragenter.prevent="dragTargetKey = NEW_ICON_DRAG_KEY"
-      @dragover.prevent="dragTargetKey = NEW_ICON_DRAG_KEY"
-      @dragleave.prevent="clearDragTarget(NEW_ICON_DRAG_KEY)"
-      @drop.prevent="handleDrop(NEW_ICON_DRAG_KEY, $event, newIconReflect)"
-    >
+    <div class="flex w-full min-w-0 items-center gap-2 overflow-hidden">
       <TextInput
-        :model-value="getIconDisplayValue(NEW_ICON_DRAG_KEY, newIconReflect.icon)"
-        placeholder="Icon URL"
-        @update:modelValue="updateIconFromInput(NEW_ICON_DRAG_KEY, newIconReflect, $event || '')"
+        class="w-32"
+        v-model="newIconReflect.name"
+        placeholder="Name"
+        :menus="
+          proxyGroupList.filter((group) => !iconReflectList.some((item) => item.name === group))
+        "
         @keydown.enter="addIconReflect"
+      />
+      <ArrowRightCircleIcon class="h-4 w-4 shrink-0" />
+      <div
+        class="bg-base-200 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden"
+        :class="hasPreview(newIconReflect.icon) ? '' : 'text-base-content/50 text-xs'"
       >
-        <template #suffix>
-          <button
-            v-if="newIconReflect.icon"
-            class="btn btn-ghost btn-xs h-6 min-h-6 w-6 min-w-6 p-0"
-            @click="copyIcon(newIconReflect.icon)"
-          >
-            <DocumentDuplicateIcon class="h-3.5 w-3.5 shrink-0" />
-          </button>
-        </template>
-      </TextInput>
+        <img
+          v-if="hasPreview(newIconReflect.icon)"
+          :src="newIconReflect.icon"
+          alt="icon preview"
+          class="h-5 w-5 object-contain"
+        />
+        <span v-else>?</span>
+      </div>
+      <div
+        class="min-w-0 flex-1 overflow-hidden"
+        :class="dragTargetKey === NEW_ICON_DRAG_KEY ? 'ring-primary rounded-field ring-1' : ''"
+        @dragenter.prevent="dragTargetKey = NEW_ICON_DRAG_KEY"
+        @dragover.prevent="dragTargetKey = NEW_ICON_DRAG_KEY"
+        @dragleave.prevent="clearDragTarget(NEW_ICON_DRAG_KEY)"
+        @drop.prevent="handleDrop(NEW_ICON_DRAG_KEY, $event, newIconReflect)"
+      >
+        <TextInput
+          class="w-full min-w-0 max-w-full"
+          :model-value="getIconDisplayValue(NEW_ICON_DRAG_KEY, newIconReflect.icon)"
+          placeholder="Icon URL"
+          @update:modelValue="updateIconFromInput(NEW_ICON_DRAG_KEY, newIconReflect, $event || '')"
+          @keydown.enter="addIconReflect"
+        >
+          <template #suffix>
+            <button
+              v-if="newIconReflect.icon"
+              class="btn btn-ghost btn-xs h-6 min-h-6 w-6 min-w-6 p-0"
+              @click="copyIcon(newIconReflect.icon)"
+            >
+              <DocumentDuplicateIcon class="h-3.5 w-3.5 shrink-0" />
+            </button>
+          </template>
+        </TextInput>
+      </div>
+      <button
+        class="btn btn-sm btn-circle"
+        @click="selectIconFile(newIconReflect)"
+      >
+        <ArrowUpTrayIcon class="h-4 w-4 shrink-0" />
+      </button>
+      <button
+        class="btn btn-sm btn-circle"
+        @click="addIconReflect"
+      >
+        <PlusIcon class="h-4 w-4 shrink-0" />
+      </button>
     </div>
-    <button
-      class="btn btn-sm btn-circle"
-      @click="selectIconFile(newIconReflect)"
-    >
-      <ArrowUpTrayIcon class="h-4 w-4 shrink-0" />
-    </button>
-    <button
-      class="btn btn-sm btn-circle"
-      @click="addIconReflect"
-    >
-      <PlusIcon class="h-4 w-4 shrink-0" />
-    </button>
   </div>
 </template>
 
@@ -260,6 +273,11 @@ const filteredIconReflectList = computed(() => {
 
   return otherIcons.value
 })
+
+const toggleDialogVisible = () => {
+  if (!iconReflectList.value.length) return
+  dialogVisible.value = !dialogVisible.value
+}
 
 const hasPreview = (icon: string) => {
   return Boolean(icon?.trim())

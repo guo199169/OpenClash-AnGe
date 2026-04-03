@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.85](https://github.com/liandu2024/AnGe-ClashBoard/compare/v1.84...v1.85) (2026-04-03)
+
+### Bug Fixes
+
+* let strategy penetration keep following the manually clicked child selector path in fallback chains so you can still drill into selector groups and switch to an available node even when the runtime route temporarily falls back to an auto url-test branch
+
+## [1.84](https://github.com/liandu2024/AnGe-ClashBoard/compare/v1.83...v1.84) (2026-04-03)
+
+### Bug Fixes
+
+* restore true content-driven sizing for the connections table in auto width mode so each column expands with its actual content instead of being constrained by fixed column widths and truncation rules
+
+## [1.83](https://github.com/liandu2024/AnGe-ClashBoard/compare/v1.82...v1.83) (2026-04-03)
+
+### Bug Fixes
+
+* fix the top-right expand/collapse action on the proxy page so it correctly controls the active render state in both the node and provider tabs, including provider category mode
+
 ## [1.82](https://github.com/liandu2024/AnGe-ClashBoard/compare/v1.81...v1.82) (2026-03-31)
 
 ### Bug Fixes

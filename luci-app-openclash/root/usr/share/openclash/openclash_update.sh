@@ -16,7 +16,10 @@ del_lock() {
 
 set_lock
 inc_job_counter
+<<<<<<< HEAD
 restart=0
+=======
+>>>>>>> upstream/master
 
 if [ -n "$1" ] && [ "$1" != "one_key_update" ]; then
    /usr/share/openclash/openclash_version.sh "$1" 2>/dev/null
@@ -29,7 +32,11 @@ fi
 if [ ! -f "/tmp/openclash_last_version" ]; then
    LOG_ERROR "Failed to get version information, please try again later..."
    SLOG_CLEAN
+<<<<<<< HEAD
    dec_job_counter_and_restart "$restart"
+=======
+   dec_job_counter_and_restart "0"
+>>>>>>> upstream/master
    del_lock
    exit 0
 fi
@@ -69,6 +76,7 @@ if [ "$1" = "one_key_update" ]; then
       LOG_TIP "If the download fails, try setting the CDN in Overwrite Settings - General Settings - Github Address Modify Options"
    fi
    if [ -n "$2" ]; then
+<<<<<<< HEAD
       /usr/share/openclash/openclash_core.sh "Meta" "$1" "$2" >/dev/null 2>&1 &
       github_address_mod="$2"
    else
@@ -77,6 +85,14 @@ if [ "$1" = "one_key_update" ]; then
    fi
 
    wait
+=======
+      /usr/share/openclash/openclash_core.sh "Meta" "$1" "$2" >/dev/null 2>&1
+      github_address_mod="$2"
+   else
+      /usr/share/openclash/openclash_core.sh "Meta" "$1" >/dev/null 2>&1
+      github_address_mod=0
+   fi
+>>>>>>> upstream/master
 else
    if [ "$github_address_mod" = "0" ]; then
       LOG_TIP "If the download fails, try setting the CDN in Overwrite Settings - General Settings - Github Address Modify Options"
@@ -175,9 +191,14 @@ if [ -n "$OP_CV" ] && [ -n "$OP_LV" ] && version_compare "$OP_CV" "$OP_LV" && [ 
                elif [ -x "/usr/bin/apk" ]; then
                   LOG_ERROR "【OpenClash - v$LAST_VER】Pre update test failed after 3 attempts, the file is saved in /tmp/openclash.apk, please try to update manually with【apk add -q --force-overwrite --clean-protected --allow-untrusted /tmp/openclash.apk】"
                fi
+<<<<<<< HEAD
 
                SLOG_CLEAN
                dec_job_counter_and_restart "$restart"
+=======
+               SLOG_CLEAN
+               dec_job_counter_and_restart "0"
+>>>>>>> upstream/master
                del_lock
                exit 0
             fi
@@ -191,8 +212,13 @@ if [ -n "$OP_CV" ] && [ -n "$OP_LV" ] && version_compare "$OP_CV" "$OP_LV" && [ 
             LOG_ERROR "【OpenClash - v$LAST_VER】Download Failed after 3 attempts, please check the network or try again later!"
             rm -rf /tmp/openclash.ipk >/dev/null 2>&1
             rm -rf /tmp/openclash.apk >/dev/null 2>&1
+<<<<<<< HEAD
             SLOG_CLEAN
             dec_job_counter_and_restart "$restart"
+=======
+            dec_job_counter_and_restart "0"
+            SLOG_CLEAN
+>>>>>>> upstream/master
             del_lock
             exit 0
          fi
@@ -200,9 +226,14 @@ if [ -n "$OP_CV" ] && [ -n "$OP_LV" ] && version_compare "$OP_CV" "$OP_LV" && [ 
    done
    cat > /tmp/openclash_update.sh <<"EOF"
 #!/bin/sh
+<<<<<<< HEAD
 START_LOG="/tmp/openclash_start.log"
 LOG_FILE="/tmp/openclash.log"
 LOGTIME=$(date "+%Y-%m-%d %H:%M:%S")
+=======
+. /usr/share/openclash/log.sh
+. /usr/share/openclash/openclash_ps.sh
+>>>>>>> upstream/master
 
 UPDATE_LOCK="/tmp/lock/openclash_update_install.lock"
 mkdir -p /tmp/lock
@@ -224,6 +255,7 @@ fi
 
 trap 'del_update_lock; exit' INT TERM EXIT
 
+<<<<<<< HEAD
 LOG_ERROR()
 {
 	if [ -n "${1}" ]; then
@@ -245,6 +277,8 @@ SLOG_CLEAN()
    echo "" > $START_LOG
 }
 
+=======
+>>>>>>> upstream/master
 check_install_success()
 {
    local target_version="$1"
@@ -357,9 +391,15 @@ else
    elif [ -x "/usr/bin/apk" ]; then
       LOG_ERROR "OpenClash update failed after 3 attempts, the file is saved in /tmp/openclash.apk, please try to update manually with【apk add -q --force-overwrite --clean-protected --allow-untrusted /tmp/openclash.apk】"
    fi
+<<<<<<< HEAD
    SLOG_CLEAN
 fi
 
+=======
+fi
+dec_job_counter_and_restart "0"
+SLOG_CLEAN
+>>>>>>> upstream/master
 del_update_lock
 EOF
    chmod 4755 /tmp/openclash_update.sh
@@ -367,6 +407,11 @@ EOF
    if [ ! -f "/tmp/openclash_update.sh" ] || [ ! -s "/tmp/openclash_update.sh" ] || [ ! -x "/tmp/openclash_update.sh" ]; then
       LOG_ERROR "Failed to create update script!"
       rm -rf /tmp/openclash_update.sh
+<<<<<<< HEAD
+=======
+      dec_job_counter_and_restart "0"
+      SLOG_CLEAN
+>>>>>>> upstream/master
       del_lock
       exit 1
    fi
@@ -405,8 +450,13 @@ else
    else
       LOG_TIP "OpenClash has not been updated, stop continuing!"
    fi
+<<<<<<< HEAD
    SLOG_CLEAN
    dec_job_counter_and_restart "$restart"
+=======
+   dec_job_counter_and_restart "0"
+   SLOG_CLEAN
+>>>>>>> upstream/master
 fi
 
 del_lock

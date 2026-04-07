@@ -18,7 +18,11 @@ end
 
 -- 优化 CBI UI（新版 LuCI 专用）
 local function optimize_cbi_ui()
+<<<<<<< HEAD
 	luci.http.write([[
+=======
+	HTTP.write([[
+>>>>>>> upstream/master
 		<script type="text/javascript">
 			// 修正上移、下移按钮名称
 			document.querySelectorAll("input.btn.cbi-button.cbi-button-up").forEach(function(btn) {

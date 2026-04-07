@@ -150,6 +150,16 @@ yml_other_set()
                            []
                      end;
 
+<<<<<<< HEAD
+=======
+                     rule_providers_array = case custom_data.class.to_s
+                        when 'Hash'
+                           custom_data['rule-providers'].to_a if custom_data['rule-providers'].class.to_s == 'Hash'
+                        else
+                           []
+                     end;
+
+>>>>>>> upstream/master
                      next unless rules_array;
 
                      ipv4_regex = /^(\d{1,3}\.){3}\d{1,3}$/;
@@ -209,6 +219,14 @@ yml_other_set()
                      else
                         Value['rules'] = valid_rules.uniq;
                      end;
+<<<<<<< HEAD
+=======
+
+                     if rule_providers_array and not rule_providers_array.empty? then
+                        Value['rule-providers'] ||= {};
+                        Value['rule-providers'] = Value['rule-providers'].merge!(custom_data['rule-providers']);
+                     end;
+>>>>>>> upstream/master
                   end;
                };
 

@@ -9,6 +9,10 @@ USE_PROCD=1
 . $IPKG_INSTROOT/usr/share/openclash/ruby.sh
 . $IPKG_INSTROOT/usr/share/openclash/log.sh
 . $IPKG_INSTROOT/usr/share/openclash/uci.sh
+<<<<<<< HEAD
+=======
+. $IPKG_INSTROOT/usr/share/openclash/openclash_curl.sh
+>>>>>>> upstream/master
 
 [ -f /etc/openwrt_release ] && {
 FW4=$(command -v fw4)
@@ -35,6 +39,7 @@ add_cron()
 {
    [ "$(tail -n1 /etc/crontabs/root | wc -l)" -eq 0 ] && [ -n "$(cat /etc/crontabs/root 2>/dev/null)" ] && echo >> /etc/crontabs/root
    [ -z "$(grep "openclash.sh" "$CRON_FILE" 2>/dev/null)" ] && {
+<<<<<<< HEAD
       [ "$(uci_get_config "auto_update")" -eq 1 ] && [ "$(uci_get_config "config_auto_update_mode")" -ne 1 ] && echo "0 $(uci_get_config "auto_update_time" || 1) * * $(uci_get_config "config_update_week_time" || 0) /usr/share/openclash/openclash.sh" >> $CRON_FILE
    }
    [ -z "$(grep "openclash_ipdb.sh" "$CRON_FILE" 2>/dev/null)" ] && {
@@ -54,6 +59,27 @@ add_cron()
    }
    [ -z "$(grep "/etc/init.d/openclash" "$CRON_FILE" 2>/dev/null)" ] && {
       [ "$(uci_get_config "auto_restart")" -eq 1 ] && echo "0 $(uci_get_config "auto_restart_day_time" || 1) * * $(uci_get_config "auto_restart_week_time" || 0) /etc/init.d/openclash restart" >> $CRON_FILE
+=======
+      [ "$(uci_get_config "auto_update")" -eq 1 ] && [ "$(uci_get_config "config_auto_update_mode")" -ne 1 ] && echo "0 $(uci_get_config "auto_update_time" || 1) * * $(uci_get_config "config_update_week_time" || 0) /usr/share/openclash/openclash.sh #openclash-cron-task" >> $CRON_FILE
+   }
+   [ -z "$(grep "openclash_ipdb.sh" "$CRON_FILE" 2>/dev/null)" ] && {
+      [ "$(uci_get_config "geo_auto_update")" -eq 1 ] && echo "0 $(uci_get_config "geo_update_day_time" || 1) * * $(uci_get_config "geo_update_week_time" || 0) /usr/share/openclash/openclash_ipdb.sh #openclash-cron-task" >> $CRON_FILE
+   }
+   [ -z "$(grep "openclash_geosite.sh" "$CRON_FILE" 2>/dev/null)" ] && {
+      [ "$(uci_get_config "geosite_auto_update")" -eq 1 ] && echo "0 $(uci_get_config "geosite_update_day_time" || 1) * * $(uci_get_config "geosite_update_week_time" || 0) /usr/share/openclash/openclash_geosite.sh #openclash-cron-task" >> $CRON_FILE
+   }
+   [ -z "$(grep "openclash_geoip.sh" "$CRON_FILE" 2>/dev/null)" ] && {
+      [ "$(uci_get_config "geoip_auto_update")" -eq 1 ] && echo "0 $(uci_get_config "geoip_update_day_time" || 1) * * $(uci_get_config "geoip_update_week_time" || 0) /usr/share/openclash/openclash_geoip.sh #openclash-cron-task" >> $CRON_FILE
+   }
+   [ -z "$(grep "openclash_geoasn.sh" "$CRON_FILE" 2>/dev/null)" ] && {
+      [ "$(uci_get_config "geoasn_auto_update")" -eq 1 ] && echo "0 $(uci_get_config "geoasn_update_day_time" || 1) * * $(uci_get_config "geoasn_update_week_time" || 0) /usr/share/openclash/openclash_geoasn.sh #openclash-cron-task" >> $CRON_FILE
+   }
+   [ -z "$(grep "openclash_chnroute.sh" "$CRON_FILE" 2>/dev/null)" ] && {
+      [ "$(uci_get_config "chnr_auto_update")" -eq 1 ] && echo "0 $(uci_get_config "chnr_update_day_time" || 1) * * $(uci_get_config "chnr_update_week_time" || 0) /usr/share/openclash/openclash_chnroute.sh #openclash-cron-task" >> $CRON_FILE
+   }
+   [ -z "$(grep "/etc/init.d/openclash" "$CRON_FILE" 2>/dev/null)" ] && {
+      [ "$(uci_get_config "auto_restart")" -eq 1 ] && echo "0 $(uci_get_config "auto_restart_day_time" || 1) * * $(uci_get_config "auto_restart_week_time" || 0) /etc/init.d/openclash restart #openclash-cron-task" >> $CRON_FILE
+>>>>>>> upstream/master
    }
 
    config_load "openclash"
@@ -65,6 +91,7 @@ add_cron()
 
 del_cron()
 {
+<<<<<<< HEAD
    sed -i '/openclash.sh/d' $CRON_FILE
    sed -i '/openclash_ipdb.sh/d' $CRON_FILE
    sed -i '/openclash_geoip.sh/d' $CRON_FILE
@@ -72,6 +99,9 @@ del_cron()
    sed -i '/openclash_geoasn.sh/d' $CRON_FILE
    sed -i '/openclash_chnroute.sh/d' $CRON_FILE
    sed -i '/\/etc\/init.d\/openclash/d' $CRON_FILE
+=======
+   sed -i '/#openclash-cron-task/d' $CRON_FILE
+>>>>>>> upstream/master
    sed -i '/#openclash-overwrite-download/d' $CRON_FILE
    /etc/init.d/cron restart
 } >/dev/null 2>&1
@@ -85,7 +115,11 @@ save_dnsmasq_server() {
 }
 
 set_dnsmasq_server() {
+<<<<<<< HEAD
 	if [ -z "$1" ] || [ "$1" == "127.0.0.1#${dns_port}" ]; then
+=======
+   if [ -z "$1" ] || [ "$1" == "127.0.0.1#${dns_port}" ]; then
+>>>>>>> upstream/master
      return
    fi
 
@@ -209,11 +243,19 @@ change_dns() {
    if [ "$1" -eq 1 ] && [ "$ipv6_dns" -eq 1 ] && [ -n "$(ip6tables -t mangle -L 2>&1 | grep -o 'Chain')" ]; then
       #dnsmasq answer ipv6
       uci -q set openclash.config.dnsmasq_filter_aaaa="$(uci -q get dhcp.@dnsmasq[0].filter_aaaa)"
+<<<<<<< HEAD
 	   uci -q set dhcp.@dnsmasq[0].filter_aaaa=0
 	   uci -q set openclash.config.filter_aaaa_dns=1
 	else
 	   uci -q set openclash.config.filter_aaaa_dns=0
 	fi
+=======
+      uci -q set dhcp.@dnsmasq[0].filter_aaaa=0
+      uci -q set openclash.config.filter_aaaa_dns=1
+   else
+      uci -q set openclash.config.filter_aaaa_dns=0
+   fi
+>>>>>>> upstream/master
 
    uci -q commit dhcp
    uci -q commit openclash
@@ -702,24 +744,42 @@ check_core_status()
          ip_="ip -6"
       fi
 
+<<<<<<< HEAD
       #wait 120s most for tun interface start
       while ( [ -n "$(pidof clash)" ] && [ -z "$($ip_ route list |grep utun)" ] && [ "$TUN_WAIT" -le 120 ] )
+=======
+      #wait 300s most for core start
+      while ( [ -n "$(pidof clash)" ] && [ -z "$($ip_ route list |grep utun)" ] && [ "$TUN_WAIT" -le 300 ] )
+>>>>>>> upstream/master
       do
          $ip_ link set utun up
          let TUN_WAIT++
          sleep 1
       done
 
+<<<<<<< HEAD
       if [ -n "$(pidof clash)" ] && [ -z "$($ip_ route list |grep utun)" ] && [ "$TUN_WAIT" -gt 120 ]; then
+=======
+      if [ -n "$(pidof clash)" ] && [ -z "$($ip_ route list |grep utun)" ] && [ "$TUN_WAIT" -gt 300 ]; then
+>>>>>>> upstream/master
          while ( [ -n "$(pidof clash)" ] && [ -z "$($ip_ route list |grep utun)" ] && [ "$TUN_RESTART" -le 3 ] )
          do
             LOG_WARN "TUN Interface Start Failed, Try to Restart Again..."
             start_run_core
+<<<<<<< HEAD
             sleep 120
             let TUN_RESTART++
          done
          if [ -n "$(pidof clash)" ] && [ -z "$($ip_ route list |grep utun)" ] && [ "$TUN_RESTART" -gt 3 ]; then
             LOG_WARN "TUN Interface Start Failed, Please Check The Dependence or Try to Restart Again!"
+=======
+            let TUN_RESTART++
+            sleep 300
+         done
+         if [ -n "$(pidof clash)" ] && [ -z "$($ip_ route list |grep utun)" ] && [ "$TUN_RESTART" -gt 3 ]; then
+            LOG_ERROR "TUN Interface Start Failed, Please Check The Dependence or Try to Restart Again!"
+            LOG_ERROR "Core Initial Configuration Timeout, Please Check The Log Infos!"
+>>>>>>> upstream/master
             start_fail
          fi
       fi
@@ -742,7 +802,11 @@ check_core_status()
       fi
    else
       reg4='^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])$'
+<<<<<<< HEAD
       while ( [ -n "$(pidof clash)" ] && [ "$CORE_HTTP_CODE" != "200" ] && [ "$TUN_WAIT" -le 120 ] && [ -n "$(echo ${lan_ip} | grep -Eo ${reg4})" ] )
+=======
+      while ( [ -n "$(pidof clash)" ] && [ "$CORE_HTTP_CODE" != "200" ] && [ "$TUN_WAIT" -le 300 ] && [ -n "$(echo ${lan_ip} | grep -Eo ${reg4})" ] )
+>>>>>>> upstream/master
       do
          CORE_HTTP_CODE=$(curl -m 5 -o /dev/null -s -w '%{http_code}' -H 'Content-Type: application/json' -H "Authorization: Bearer ${da_password}" -XGET http://${lan_ip}:${cn_port}/group)
          let TUN_WAIT++
@@ -750,9 +814,16 @@ check_core_status()
       done
       if [ -z "$(echo ${lan_ip} | grep -Eo ${reg4})" ]; then
          LOG_ERROR "LAN IP Address Get Error, Please Check The LAN Interface Setting or Choose the Correct Interface in the Setting!"
+<<<<<<< HEAD
       fi
       if [ "$CORE_HTTP_CODE" != "200" ]; then
          LOG_ERROR "Core Status Abnormal, Please Check The Log Infos!"
+=======
+         start_fail
+      fi
+      if [ -n "$(pidof clash)" ] && [ "$CORE_HTTP_CODE" != "200" ]; then
+         LOG_ERROR "Core Initial Configuration Timeout, Please Check The Log Infos!"
+>>>>>>> upstream/master
          start_fail
       fi
    fi
@@ -1443,7 +1514,11 @@ if [ -n "$common_ports" ] && [ "$common_ports" != "0" ]; then
 fi
 
 case $enable_redirect_dns in
+<<<<<<< HEAD
 	"1")
+=======
+   "1")
+>>>>>>> upstream/master
    LOG_TIP "DNS Hijacking Mode is Dnsmasq Redirect..."
    ;;
    "2")
@@ -3244,9 +3319,15 @@ add_overwrite_cron()
    fi
 
    eval "restart_flag=\${OVERWRITE_RESTART_FLAG_${name}}"
+<<<<<<< HEAD
    cron_cmd="curl -fsSL -m 30 \"$url\" -o \"/etc/openclash/overwrite/$name\" >/dev/null 2>&1"
    if [ "$restart_flag" = "1" ]; then
       cron_cmd="$cron_cmd && /etc/init.d/openclash restart"
+=======
+   cron_cmd="$cron source /usr/share/openclash/openclash_curl.sh && DOWNLOAD_FILE_CURL \"$url\" \"/etc/openclash/overwrite/$name\" \"/etc/openclash/overwrite/$name\""
+   if [ "$restart_flag" = "1" ]; then
+      cron_cmd="$cron_cmd && [ \"\$?\" -eq 0 ] && /etc/init.d/openclash restart"
+>>>>>>> upstream/master
    fi
    cron_cmd="$cron_cmd #openclash-overwrite-download"
 
@@ -3276,6 +3357,29 @@ check_type() {
    esac
 }
 
+<<<<<<< HEAD
+=======
+overwrite_config_match_check()
+{
+   local section="$1" name config
+   config_get "name" "$section" "name" ""
+   config_get "config" "$section" "config" ""
+
+   [ -z "$name" ] || [ "$name" != "$2" ] || [ -z "$config" ] && return
+
+   config_list_foreach "$section" "config" overwrite_config_match_item
+}
+
+overwrite_config_match_item()
+{
+   local config_path_item="$1"
+
+   [ -z "$config_path_item" ] && return
+   [ "$config_path_item" = "all" ] && OVERWRITE_CONFIG_MATCHED=1 && return
+   [ "$config_path_item" = "$(uci_get_config "config_path")" ] && OVERWRITE_CONFIG_MATCHED=1
+}
+
+>>>>>>> upstream/master
 overwrite_file()
 {
    clear_overwrite_set
@@ -3404,7 +3508,15 @@ EOF
       name=$(echo "$entry" | cut -d'|' -f2)
       sid=$(echo "$entry" | cut -d'|' -f3)
       enabled_flag=$(echo "$entry" | cut -d'|' -f4)
+<<<<<<< HEAD
 
+=======
+      OVERWRITE_CONFIG_MATCHED=0
+      config_load "openclash"
+      config_foreach overwrite_config_match_check "config_overwrite" "$name"
+
+      [ "$OVERWRITE_CONFIG_MATCHED" -eq 0 ] && continue
+>>>>>>> upstream/master
       [ "$enabled_flag" != "1" ] && continue
       [ -z "$name" ] && continue
 
@@ -3436,14 +3548,25 @@ EOF
 
       in_general=0
       in_overwrite=0
+<<<<<<< HEAD
+=======
+      in_yaml=0
+>>>>>>> upstream/master
       download_file_lines=""
 
       while IFS= read -r line || [ -n "$line" ]; do
          trimmed=$(printf "%s" "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
          case "$trimmed" in
+<<<<<<< HEAD
                "[General]"*) in_general=1; in_overwrite=0; continue;;
                "[Overwrite]"*) in_general=0; in_overwrite=1; continue;;
                "["*"]"*) in_general=0; in_overwrite=0; continue;;
+=======
+               "[General]"*) in_general=1; in_overwrite=0; in_yaml=0; continue;;
+               "[Overwrite]"*) in_general=0; in_overwrite=1; in_yaml=0; continue;;
+               "[YAML]"*) in_general=0; in_overwrite=0; in_yaml=1; continue;;
+               "["*"]"*) in_general=0; in_overwrite=0; in_yaml=0; continue;;
+>>>>>>> upstream/master
          esac
          [ -z "$trimmed" ] && continue
          echo "$trimmed" | grep -qE '^[#;]' && continue
@@ -3483,6 +3606,7 @@ ${trimmed}"
             LOG_TIP "DOWNLOAD FILE for【Download Job => file: $file, url: $url, path: $path, ua: ${ua:-null}, force: ${force:-false}】"
             if command -v curl >/dev/null 2>&1; then
                if [ -n "$ua" ]; then
+<<<<<<< HEAD
                   curl -fsSL -m 30 -H "User-Agent: $ua" "$url" -o "$path" >/dev/null 2>&1
                else
                   curl -fsSL -m 30 "$url" -o "$path" >/dev/null 2>&1
@@ -3497,6 +3621,15 @@ ${trimmed}"
                rc=$?
             fi
             if [ $rc -ne 0 ] && [ ! -f "$path" ]; then
+=======
+                  DOWNLOAD_FILE_CURL "$url" "$path" "$path" "$ua"
+               else
+                  DOWNLOAD_FILE_CURL "$url" "$path" "$path"
+               fi
+               rc=$?
+            fi
+            if [ $rc -eq 1 ] || [ ! -f "$path" ]; then
+>>>>>>> upstream/master
                LOG_ERROR "DOWNLOAD FILE failed for【Download Job => file: $file, url: $url, path: $path】"
                download_failed=1
                break
@@ -3506,12 +3639,21 @@ ${trimmed}"
             LOG_TIP "Add Cron for【Cron Job => time: $cron, url: $url, path: $path, restart: ${restart:-false}】"
             if ! grep -q "$url" $CRON_FILE 2>/dev/null; then
                if [ -n "$ua" ]; then
+<<<<<<< HEAD
                   cron_cmd="$cron curl -fsSL -m 30 -H \"User-Agent: $ua\" \"$url\" -o \"$path\" >/dev/null 2>&1"
                else
                   cron_cmd="$cron curl -fsSL -m 30 \"$url\" -o \"$path\" >/dev/null 2>&1"
                fi
                if [ "$restart" = "1" ] || [ "$restart" = "true" ]; then
                   cron_cmd="$cron_cmd && /etc/init.d/openclash restart"
+=======
+                  cron_cmd="$cron source /usr/share/openclash/openclash_curl.sh && DOWNLOAD_FILE_CURL \"$url\" \"$path\" \"$path\" \"$ua\""
+               else
+                  cron_cmd="$cron source /usr/share/openclash/openclash_curl.sh && DOWNLOAD_FILE_CURL \"$url\" \"$path\" \"$path\""
+               fi
+               if [ "$restart" = "1" ] || [ "$restart" = "true" ]; then
+                  cron_cmd="$cron_cmd && [ \"\$?\" -eq 0 ] && /etc/init.d/openclash restart"
+>>>>>>> upstream/master
                fi
                cron_cmd="$cron_cmd #openclash-overwrite-download"
                echo "$cron_cmd" >> $CRON_FILE
@@ -3523,12 +3665,24 @@ ${trimmed}"
 
       in_general=0
       in_overwrite=0
+<<<<<<< HEAD
       while IFS= read -r line || [ -n "$line" ]; do
          trimmed=$(printf "%s" "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
          case "$trimmed" in
                "[General]"*) in_general=1; in_overwrite=0; continue;;
                "[Overwrite]"*) in_general=0; in_overwrite=1; continue;;
                "["*"]"*) in_general=0; in_overwrite=0; continue;;
+=======
+      in_yaml=0
+      yaml_content=""
+      while IFS= read -r line || [ -n "$line" ]; do
+         trimmed=$(printf "%s" "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+         case "$trimmed" in
+               "[General]"*) in_general=1; in_overwrite=0; in_yaml=0; continue;;
+               "[Overwrite]"*) in_general=0; in_overwrite=1; in_yaml=0; continue;;
+               "[YAML]"*) in_general=0; in_overwrite=0; in_yaml=1; continue;;
+               "["*"]"*) in_general=0; in_overwrite=0; in_yaml=0; continue;;
+>>>>>>> upstream/master
          esac
          [ -z "$trimmed" ] && continue
          echo "$trimmed" | grep -qE '^[#;]' && continue
@@ -3573,8 +3727,11 @@ ${trimmed}"
                   val_key=$(eval "echo \"$val_clean\"")
                   if check_type "$key_u" "$val_clean"; then
                      uci -q set openclash.@overwrite[0]."$key_l"="$val_key"
+<<<<<<< HEAD
                   else
                      LOG_WARN "skip General key type error【General Key => $name: $key_u, value: $val_key】"
+=======
+>>>>>>> upstream/master
                   fi
                else
                   LOG_WARN "skip General key not allowed【General Key => $name: $key_u】"
@@ -3587,14 +3744,63 @@ ${trimmed}"
             else
                LOG_WARN "skip invalid Overwrite command【Ruby Script => $name: $trimmed】"
             fi
+<<<<<<< HEAD
          fi
       done < "$file"
 
+=======
+         elif [ "$in_yaml" -eq 1 ]; then
+            yaml_content="${yaml_content}$(eval "echo \"$line\"")"$'\n'
+         fi
+      done < "$file"
+
+      if [ -n "$yaml_content" ]; then
+         LOG_TIP "Load YAML Override Block【YAML Block => $name】"
+         
+         cat >> "$overwrite_script" <<'EOF'
+ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
+   # YAML Override Block Processing
+   begin
+      yaml_override_content = <<-'YAML_CONTENT'
+EOF
+
+         echo "$yaml_content" >> "$overwrite_script"
+            
+         cat >> "$overwrite_script" <<'EOF'
+      YAML_CONTENT
+
+      begin
+         yaml_data = YAML.load(yaml_override_content)
+         
+         if yaml_data.is_a?(Hash)
+            Value = YAML.load_file('$CONFIG_FILE')
+            Overwrite_Value = YAML.overwrite(Value, yaml_data)
+            File.open('$CONFIG_FILE', 'w') do |f|
+               YAML.dump(Overwrite_Value, f)
+            end
+         else
+            YAML.LOG_WARN('Invalid YAML Override format, skipped...')
+         end
+      rescue => e
+         YAML.LOG_ERROR('Parse YAML Override failed:【%s】' % [e.message])
+      end
+   rescue => e
+      YAML.LOG_ERROR('Parse YAML Override failed:【%s】' % [e.message])
+   end
+" >> $LOG_FILE 2>&1
+EOF
+      fi
+
+>>>>>>> upstream/master
       cat >> "$overwrite_script" <<'EOF'
 if [ -f "/tmp/yaml_openclash_ruby_parts/$OPENCLASH_OVERWRITE_SID" ]; then
    ruby_code=$(cat "/tmp/yaml_openclash_ruby_parts/$OPENCLASH_OVERWRITE_SID")
    ruby -ryaml -rYAML -I "/usr/share/openclash" -E UTF-8 -e "
+<<<<<<< HEAD
       Value = YAML.load_file('$CONFIG_FILE');
+=======
+      Value = YAML.load_file('$CONFIG_FILE')
+>>>>>>> upstream/master
       threads = []
       $ruby_code
       threads.each(&:join)
@@ -3662,7 +3868,11 @@ get_config()
    else
       fakeip_range6=$(uci_get_config "fakeip_range6")
    fi
+<<<<<<< HEAD
    [ -z "$fakeip_range6" ] && fakeip_range6="fdfe:dcba:9876::1/64"
+=======
+   [ -z "$fakeip_range6" ] && fakeip_range6=0
+>>>>>>> upstream/master
 
    lan_interface_name=$(uci_get_config "lan_interface_name" || echo 0)
    if [ "$lan_interface_name" = "0" ]; then
@@ -3820,14 +4030,22 @@ start_service()
       fi
 
       rm -rf /tmp/yaml_*
+<<<<<<< HEAD
    }
+=======
+   } >/dev/null 2>&1
+>>>>>>> upstream/master
 
    echo "OpenClash Already Start!"
 }
 
 stop_service()
 {
+<<<<<<< HEAD
    enable=$(uci_get_config "enable")
+=======
+   get_config
+>>>>>>> upstream/master
 
    LOG_TIP "OpenClash Stoping..."
    LOG_OUT "Step 1: Backup The Current Groups State..."
@@ -3869,6 +4087,10 @@ stop_service()
 
       del_cron
       clear_overwrite_set
+<<<<<<< HEAD
+=======
+      rm -rf /tmp/openclash_jobs
+>>>>>>> upstream/master
       rm -rf /tmp/yaml_*
    } >/dev/null 2>&1
 
@@ -3877,7 +4099,10 @@ stop_service()
 
 revert_dnsmasq()
 {
+<<<<<<< HEAD
    get_config
+=======
+>>>>>>> upstream/master
    redirect_dns=$(uci_get_config "redirect_dns")
    dnsmasq_server=$(uci_get_config "dnsmasq_server")
    dnsmasq_noresolv=$(uci_get_config "dnsmasq_noresolv")
@@ -3895,20 +4120,33 @@ restart()
    echo "OpenClash Restart..."
    LOG_TIP "OpenClash Restart..."
    check_run_quick
+<<<<<<< HEAD
    stop
+=======
+   stop_service
+>>>>>>> upstream/master
    start
 }
 
 start_watchdog()
 {
    procd_open_instance "openclash-watchdog"
+<<<<<<< HEAD
 	procd_set_param command "/usr/share/openclash/openclash_watchdog.sh"
 	procd_close_instance
+=======
+   procd_set_param command "/usr/share/openclash/openclash_watchdog.sh"
+   procd_close_instance
+>>>>>>> upstream/master
 }
 
 reload_service()
 {
+<<<<<<< HEAD
    enable=$(uci_get_config "enable")
+=======
+   get_config
+>>>>>>> upstream/master
    MAX_RELOAD=10
    if pidof clash >/dev/null && [ "$enable" == "1" ] && [ "$1" == "firewall" ]; then
       #sleep for avoiding system unready
@@ -3935,14 +4173,20 @@ reload_service()
       LOG_OUT "【${CUR_RELOAD_NUM}/$MAX_RELOAD】Reload OpenClash Firewall Rules..."
       revert_firewall
       do_run_mode
+<<<<<<< HEAD
       get_config
+=======
+>>>>>>> upstream/master
       check_core_status &
    fi
    if pidof clash >/dev/null && [ "$enable" == "1" ] && [ "$1" == "manual" ]; then
       LOG_OUT "Manually Reload Firewall Rules..."
       revert_firewall
       do_run_mode
+<<<<<<< HEAD
       get_config
+=======
+>>>>>>> upstream/master
       check_core_status &
    fi
    if pidof clash >/dev/null && [ "$enable" == "1" ] && [ "$1" == "revert" ]; then
@@ -3952,7 +4196,10 @@ reload_service()
    fi
    if pidof clash >/dev/null && [ "$enable" == "1" ] && [ "$1" == "restore" ]; then
       do_run_mode
+<<<<<<< HEAD
       get_config
+=======
+>>>>>>> upstream/master
       # used for config subscribe, not background for avoiding system unready
       check_core_status
    fi
@@ -3960,6 +4207,7 @@ reload_service()
 
 boot()
 {
+<<<<<<< HEAD
 	delay_start=$(uci_get_config "delay_start" || echo 0)
 	enable=$(uci_get_config "enable")
 	if [ "$delay_start" -gt 0 ] && [ "$enable" == "1" ]; then
@@ -3969,3 +4217,13 @@ boot()
 	restart
 }
 
+=======
+   delay_start=$(uci_get_config "delay_start" || echo 0)
+   enable=$(uci_get_config "enable")
+   if [ "$delay_start" -gt 0 ] && [ "$enable" == "1" ]; then
+      LOG_OUT "Enable Delay Start, OpenClash Will Start After【$delay_start】Seconds..."
+      sleep "$delay_start"
+   fi
+   restart
+}
+>>>>>>> upstream/master

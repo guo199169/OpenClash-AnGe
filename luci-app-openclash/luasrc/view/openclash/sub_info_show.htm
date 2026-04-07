@@ -789,9 +789,15 @@ function sub_info_refresh_<%=idname%>(force) {
 
     var save_info = (localStorage.getItem("sub_info_<%=filename%>")) ? JSON.parse(localStorage.getItem("sub_info_<%=filename%>")) : null;
     var shouldFetchNew = true;
+<<<<<<< HEAD
     if (save_info && !force) {
         dispaly_progressbar('<%=idname%>', save_info);
         if (save_info.get_time) {
+=======
+    if (!force) {
+        dispaly_progressbar('<%=idname%>', save_info);
+        if (save_info && save_info.get_time) {
+>>>>>>> upstream/master
             var currentTime = Math.floor(Date.now() / 1000);
             var cacheTime = parseInt(save_info.get_time);
             var timeDiff = currentTime - cacheTime;
@@ -803,12 +809,15 @@ function sub_info_refresh_<%=idname%>(force) {
         }
     }
 
+<<<<<<< HEAD
     if (retry_<%=idname%> >= 3) {
         localStorage.removeItem("sub_info_<%=filename%>");
         retry_<%=idname%> = 0;
         shouldFetchNew = false;
     }
 
+=======
+>>>>>>> upstream/master
     if (!shouldFetchNew) {
         s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>(false)", 60000*15);
         return;
@@ -839,8 +848,18 @@ function sub_info_refresh_<%=idname%>(force) {
 
         if (needsErrorHandling && retry_<%=idname%> <= 2) {
             retry_<%=idname%>++;
+<<<<<<< HEAD
             s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>(false)", 15000);
         } else {
+=======
+            s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>(false)", 5000);
+        } else {
+            retry_<%=idname%> = 0;
+            dispaly_progressbar('<%=idname%>', status);
+            if (status && status.providers) {
+                localStorage.setItem("sub_info_<%=filename%>", JSON.stringify(status));
+            }
+>>>>>>> upstream/master
             s_<%=idname%> = setTimeout("sub_info_refresh_<%=idname%>(false)", 60000*15);
         };
 	});

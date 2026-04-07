@@ -798,7 +798,11 @@ function sub_info_get()
 
 	if #providers_data == 0 then
 		if not url_result then
+<<<<<<< HEAD
 			luci.http.status(400, "Subscription information not found")
+=======
+			luci.http.status(500, "Subscription information not found")
+>>>>>>> upstream/master
 			return
 		end
 	end
@@ -841,7 +845,11 @@ function action_switch_rule_mode()
 	mode = luci.http.formvalue("rule_mode")
 
 	if not mode then
+<<<<<<< HEAD
 		luci.http.status(400, "Missing parameters")
+=======
+		luci.http.status(500, "Missing parameters")
+>>>>>>> upstream/master
 		return
 	end
 
@@ -1098,7 +1106,11 @@ end
 function action_default_dashboard()
 	local default_dashboard = luci.http.formvalue("name")
 	if not default_dashboard or (default_dashboard ~= "Dashboard" and default_dashboard ~= "Yacd" and default_dashboard ~= "Metacubexd" and default_dashboard ~= "Zashboard") then
+<<<<<<< HEAD
 		luci.http.status(400, "Set Failed")
+=======
+		luci.http.status(500, "Set Failed")
+>>>>>>> upstream/master
 		return
 	end
 	if not fs.isdirectory("/usr/share/openclash/ui/" .. string.lower(default_dashboard)) then
@@ -1644,6 +1656,16 @@ function rename_file()
 					uci:set("openclash", s[".name"], "name", fs.filename(new_file_name))
 				end
 			end)
+<<<<<<< HEAD
+=======
+
+			uci:foreach("openclash", "subscribe_info",
+			function(s)
+				if s.name == fs.filename(old_file_name) and fs.filename(new_file_name) ~= new_file_name then
+					uci:set("openclash", s[".name"], "name", fs.filename(new_file_name))
+				end
+			end)
+>>>>>>> upstream/master
 			
 			uci:foreach("openclash", "groups",
 			function(s)
@@ -2073,6 +2095,7 @@ function action_myip_check()
 	luci.http.write_json(result)
 end
 
+<<<<<<< HEAD
 function action_website_check()
 	local domain = luci.http.formvalue("domain")
 	local result = {
@@ -2181,6 +2204,103 @@ function action_website_check()
 		result.error = "No response"
 	end
 
+=======
+function latency_test(addr)
+	local result = { success = false, response_time = 0, error = "" }
+
+	if not addr then
+		result.error = "Missing domain parameter"
+		return result
+	end
+
+	if addr:match("^https?://") then
+		addr = addr:gsub("^https?://([^/]+)/?.*$", "%1")
+	end
+
+	local urls = {}
+	if addr == "raw.githubusercontent.com" then
+		table.insert(urls, "https://raw.githubusercontent.com/vernesong/OpenClash/dev/img/logo.png")
+	else
+		table.insert(urls, "https://" .. addr .. "/favicon.ico")
+	end
+
+	table.insert(urls, "https://" .. addr)
+
+	for i, test_url in ipairs(urls) do
+		local cmd = string.format(
+			'curl -sI -m 5 --connect-timeout 3 --retry 2 -w "%%{http_code},%%{time_total},%%{time_connect},%%{time_appconnect}" "%s" -o /dev/null 2>/dev/null',
+			test_url
+		)
+
+		local output = luci.sys.exec(cmd)
+		if output and output ~= "" then
+			local http_code, time_total, time_connect, time_appconnect =
+				output:match("(%d+),([%d%.]+),([%d%.]+),([%d%.]+)")
+
+			if not http_code then
+				http_code, time_total, time_appconnect = output:match("(%d+),([%d%.]+),([%d%.]+)")
+				time_connect = nil
+			end
+
+			if http_code and tonumber(http_code) then
+				local code = tonumber(http_code)
+				local response_time = 0
+
+				if time_appconnect and tonumber(time_appconnect) and tonumber(time_appconnect) > 0 then
+					response_time = math.floor(tonumber(time_appconnect) * 1000)
+				elseif time_connect and tonumber(time_connect) and tonumber(time_connect) > 0 then
+					response_time = math.floor(tonumber(time_connect) * 1000)
+				else
+					response_time = math.floor((tonumber(time_total) or 0) * 1000)
+				end
+
+				if (code >= 200 and code < 400) or code == 403 or code == 404 then
+					result.success = true
+					result.response_time = response_time
+					return result
+				else
+					if i == #urls then
+						result.success = false
+						result.error = "HTTP " .. code
+						result.response_time = response_time
+						return result
+					end
+				end
+			else
+				if i == #urls then
+					result.success = false
+					result.error = "Invalid response"
+					return result
+				end
+			end
+		else
+			if i == #urls then
+				result.success = false
+				result.error = "No response"
+				return result
+			end
+		end
+	end
+
+	return result
+end
+
+function action_website_check()
+	local domain = luci.http.formvalue("domain")
+
+	if not domain then
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({
+			success = false,
+			response_time = 0,
+			error = "Missing domain parameter"
+		})
+		return
+	end
+
+	local result = latency_test(domain)
+
+>>>>>>> upstream/master
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(result)
 end
@@ -2257,7 +2377,11 @@ function action_switch_oc_setting()
 	local value = luci.http.formvalue("value")
 
 	if not setting or not value then
+<<<<<<< HEAD
 		luci.http.status(400, "Missing parameters")
+=======
+		luci.http.status(500, "Missing parameters")
+>>>>>>> upstream/master
 		return
 	end
 
@@ -2490,7 +2614,11 @@ function action_switch_oc_setting()
 		end
 		uci:commit("openclash")
 	else
+<<<<<<< HEAD
 		luci.http.status(400, "Invalid setting")
+=======
+		luci.http.status(500, "Invalid setting")
+>>>>>>> upstream/master
 		return
 	end
 
@@ -2910,14 +3038,22 @@ function action_oc_action()
 	local config_file = luci.http.formvalue("config_file")
 	
 	if not action then
+<<<<<<< HEAD
 		luci.http.status(400, "Missing action parameter")
+=======
+		luci.http.status(500, "Missing action parameter")
+>>>>>>> upstream/master
 		return
 	end
 
 	if config_file and config_file ~= "" then
 		local config_path = "/etc/openclash/config/" .. config_file
 		if not fs.access(config_path) then
+<<<<<<< HEAD
 			luci.http.status(404, "Config file not found")
+=======
+			luci.http.status(500, "Config file not found")
+>>>>>>> upstream/master
 			return
 		end
 
@@ -2952,7 +3088,11 @@ function action_oc_action()
 		luci.sys.call("ps | grep openclash | grep -v grep | awk '{print $1}' | xargs -r kill -9 >/dev/null 2>&1")
 		luci.sys.call("/etc/init.d/openclash restart >/dev/null 2>&1")
 	else
+<<<<<<< HEAD
 		luci.http.status(400, "Invalid action parameter")
+=======
+		luci.http.status(500, "Invalid action parameter")
+>>>>>>> upstream/master
 		return
 	end
 	
@@ -3111,7 +3251,11 @@ function action_config_file_read()
 	local config_file = luci.http.formvalue("config_file")
 
 	if not config_file then
+<<<<<<< HEAD
 		luci.http.status(400, "Missing config_file parameter")
+=======
+		luci.http.status(500, "Missing config_file parameter")
+>>>>>>> upstream/master
 		return
 	end
 
@@ -3202,12 +3346,20 @@ function action_config_file_save()
 	end
 
 	if not config_file then
+<<<<<<< HEAD
 		luci.http.status(400, "Missing config_file parameter")
+=======
+		luci.http.status(500, "Missing config_file parameter")
+>>>>>>> upstream/master
 		return
 	end
 
 	if not content then
+<<<<<<< HEAD
 		luci.http.status(400, "Missing content parameter")
+=======
+		luci.http.status(500, "Missing content parameter")
+>>>>>>> upstream/master
 		return
 	end
 
@@ -3467,9 +3619,13 @@ function action_add_subscription()
 				end
 			end
 			if #params > 0 then
+<<<<<<< HEAD
 				for i, param in ipairs(params) do
 					uci:set_list("openclash", section_id, "custom_params", param)
 				end
+=======
+				uci:set_list("openclash", section_id, "custom_params", params)
+>>>>>>> upstream/master
 			end
 		end
 
@@ -3483,9 +3639,13 @@ function action_add_subscription()
 				end
 			end
 			if #keywords > 0 then
+<<<<<<< HEAD
 				for i, kw in ipairs(keywords) do
 					uci:set_list("openclash", section_id, "keyword", kw)
 				end
+=======
+				uci:set_list("openclash", section_id, "keyword", keywords)
+>>>>>>> upstream/master
 			end
 		end
 
@@ -3499,9 +3659,13 @@ function action_add_subscription()
 				end
 			end
 			if #ex_keywords > 0 then
+<<<<<<< HEAD
 				for i, ex_kw in ipairs(ex_keywords) do
 					uci:set_list("openclash", section_id, "ex_keyword", ex_kw)
 				end
+=======
+				uci:set_list("openclash", section_id, "ex_keyword", ex_keywords)
+>>>>>>> upstream/master
 			end
 		end
 
@@ -3530,6 +3694,19 @@ end
 function action_upload_overwrite()
 	local upload = luci.http.formvalue("config_file")
 	local filename = luci.http.formvalue("filename")
+<<<<<<< HEAD
+=======
+	local config_values = {}
+	local raw_config = luci.http.formvalue("config") or ""
+	if raw_config ~= "" then
+		for line in raw_config:gmatch("[^\n]+") do
+			local config_value = line:match("^%s*(.-)%s*$")
+			if config_value and config_value ~= "" then
+				table.insert(config_values, config_value)
+			end
+		end
+	end
+>>>>>>> upstream/master
 	local enable = luci.http.formvalue("enable")
 	local order = luci.http.formvalue("order")
 	luci.http.prepare_content("application/json")
@@ -3575,6 +3752,13 @@ function action_upload_overwrite()
 		uci:foreach("openclash", "config_overwrite", function(s)
 			if s.name == section_name then
 				found = true
+<<<<<<< HEAD
+=======
+				uci:delete("openclash", s[".name"], "config")
+				if #config_values > 0 then
+					uci:set_list("openclash", s[".name"], "config", config_values)
+				end
+>>>>>>> upstream/master
 				if s.enable == nil or (s.enable ~= nil and enable ~= nil) then
 					if enable == nil then
 						enable = 0
@@ -3600,6 +3784,13 @@ function action_upload_overwrite()
 			local sid = uci:add("openclash", "config_overwrite")
 			uci:set("openclash", sid, "name", section_name)
 			uci:set("openclash", sid, "type", "file")
+<<<<<<< HEAD
+=======
+			uci:delete("openclash", sid, "config")
+			if #config_values > 0 then
+				uci:set_list("openclash", sid, "config", config_values)
+			end
+>>>>>>> upstream/master
 			if enable ~= nil then
 				uci:set("openclash", sid, "enable", tostring(enable))
 			else
@@ -3657,8 +3848,27 @@ function action_overwrite_subscribe_info()
 		local result = {}
 		uci:foreach("openclash", "config_overwrite", function(s)
 			if s.name then
+<<<<<<< HEAD
 				result[s.name] = {
 					url = s.url or "",
+=======
+				local config_value = ""
+				if s.config then
+					local config_list = {}
+					for _, item in ipairs(s.config) do
+						if item and item ~= "" then
+							table.insert(config_list, tostring(item))
+						end
+					end
+					if #config_list > 0 then
+						config_value = config_list
+					end
+				end
+
+				result[s.name] = {
+					url = s.url or "",
+					config = config_value,
+>>>>>>> upstream/master
 					update_days = s.update_days or "",
 					update_hour = s.update_hour or "",
 					order = tonumber(s.order) or 0,
@@ -3673,7 +3883,11 @@ function action_overwrite_subscribe_info()
 		return
 	elseif method == "POST" then
 		if not section_name then
+<<<<<<< HEAD
 			luci.http.status(400, "Missing filename")
+=======
+			luci.http.status(500, "Missing filename")
+>>>>>>> upstream/master
 			return
 		end
 		local url = luci.http.formvalue("url") or ""
@@ -3681,6 +3895,19 @@ function action_overwrite_subscribe_info()
 		local update_hour = luci.http.formvalue("update_hour") or ""
 		local order = luci.http.formvalue("order")
 		local param = luci.http.formvalue("param") or ""
+<<<<<<< HEAD
+=======
+		local config_values = {}
+		local raw_config = luci.http.formvalue("config") or ""
+		if raw_config ~= "" then
+			for line in raw_config:gmatch("[^\n]+") do
+				local config_value = line:match("^%s*(.-)%s*$")
+				if config_value and config_value ~= "" then
+					table.insert(config_values, config_value)
+				end
+			end
+		end
+>>>>>>> upstream/master
 		typ = luci.http.formvalue("type") or typ or "file"
 		local enable = luci.http.formvalue("enable")
 
@@ -3713,6 +3940,13 @@ function action_overwrite_subscribe_info()
 				if s.name == old_section_name then
 					uci:set("openclash", s[".name"], "name", section_name)
 					uci:set("openclash", s[".name"], "url", url)
+<<<<<<< HEAD
+=======
+					uci:delete("openclash", s[".name"], "config")
+					if #config_values > 0 then
+						uci:set_list("openclash", s[".name"], "config", config_values)
+					end
+>>>>>>> upstream/master
 					uci:set("openclash", s[".name"], "update_days", update_days)
 					uci:set("openclash", s[".name"], "update_hour", update_hour)
 					uci:set("openclash", s[".name"], "type", typ)
@@ -3754,6 +3988,13 @@ function action_overwrite_subscribe_info()
 			uci:foreach("openclash", "config_overwrite", function(s)
 				if s.name == section_name then
 					uci:set("openclash", s[".name"], "url", url)
+<<<<<<< HEAD
+=======
+					uci:delete("openclash", s[".name"], "config")
+					if #config_values > 0 then
+						uci:set_list("openclash", s[".name"], "config", config_values)
+					end
+>>>>>>> upstream/master
 					uci:set("openclash", s[".name"], "update_days", update_days)
 					uci:set("openclash", s[".name"], "update_hour", update_hour)
 					uci:set("openclash", s[".name"], "type", typ)
@@ -3785,6 +4026,13 @@ function action_overwrite_subscribe_info()
 			local sid = uci:add("openclash", "config_overwrite")
 			uci:set("openclash", sid, "name", section_name)
 			uci:set("openclash", sid, "url", url)
+<<<<<<< HEAD
+=======
+			uci:delete("openclash", sid, "config")
+			if #config_values > 0 then
+				uci:set_list("openclash", sid, "config", config_values)
+			end
+>>>>>>> upstream/master
 			uci:set("openclash", sid, "update_days", update_days)
 			uci:set("openclash", sid, "update_hour", update_hour)
 			uci:set("openclash", sid, "type", typ)
@@ -3835,7 +4083,11 @@ function action_overwrite_subscribe_info()
 		luci.http.write_json({status="success"})
 		return
 	else
+<<<<<<< HEAD
 		luci.http.status(405, "Method Not Allowed")
+=======
+		luci.http.status(500, "Method Not Allowed")
+>>>>>>> upstream/master
 	end
 end
 
@@ -3923,7 +4175,11 @@ end
 function action_get_subscribe_data()
 	local filename = luci.http.formvalue("filename")
 	if not filename then
+<<<<<<< HEAD
 		luci.http.status(400, "Bad Request")
+=======
+		luci.http.status(500, "Bad Request")
+>>>>>>> upstream/master
 		return
 	end
 
@@ -3941,7 +4197,11 @@ end
 function action_get_subscribe_info_data()
 	local filename = luci.http.formvalue("filename")
 	if not filename then
+<<<<<<< HEAD
 		luci.http.status(400, "Bad Request")
+=======
+		luci.http.status(500, "Bad Request")
+>>>>>>> upstream/master
 		return
 	end
 	luci.http.prepare_content("application/json")

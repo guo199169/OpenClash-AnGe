@@ -3,6 +3,7 @@ local m, s, o
 local openclash = "openclash"
 local uci = luci.model.uci.cursor()
 local sys = require "luci.sys"
+<<<<<<< HEAD
 local sid = arg[1]
 local fs = require "luci.openclash"
 local file_path = ""
@@ -13,6 +14,17 @@ end
 
 if not fs.isfile(file_path) and file_path ~= "" then
 	file_path = luci.http.urldecode(file_path)
+=======
+local HTTP = require "luci.http"
+local DISP = require "luci.dispatcher"
+local sid = arg[1]
+local fs = require "luci.openclash"
+local file_path = fs.get_file_path_from_request()
+
+if not file_path then
+	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "servers"))
+	return
+>>>>>>> upstream/master
 end
 
 font_red = [[<b style=color:red>]]
@@ -33,9 +45,15 @@ end
 
 m = Map(openclash, translate("Edit Proxy-Provider"))
 m.pageaction = false
+<<<<<<< HEAD
 m.redirect = luci.dispatcher.build_url("admin/services/openclash/servers%s" % file_path)
 if m.uci:get(openclash, sid) ~= "proxy-provider" then
 	luci.http.redirect(m.redirect)
+=======
+m.redirect = DISP.build_url("admin/services/openclash/servers") .. "?file=" .. HTTP.urlencode(file_path)
+if m.uci:get(openclash, sid) ~= "proxy-provider" then
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 	return
 end
 
@@ -182,7 +200,11 @@ o.inputtitle = translate("Commit Settings")
 o.inputstyle = "apply"
 o.write = function()
 	m.uci:commit(openclash)
+<<<<<<< HEAD
 	luci.http.redirect(m.redirect)
+=======
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 end
 
 o = a:option(Button,"Back", " ")
@@ -190,7 +212,11 @@ o.inputtitle = translate("Back Settings")
 o.inputstyle = "reset"
 o.write = function()
 	m.uci:revert(openclash, sid)
+<<<<<<< HEAD
 	luci.http.redirect(m.redirect)
+=======
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 end
 
 m:append(Template("openclash/toolbar_show"))

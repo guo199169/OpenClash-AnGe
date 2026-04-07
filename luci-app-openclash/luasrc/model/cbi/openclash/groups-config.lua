@@ -4,6 +4,7 @@ local openclash = "openclash"
 local uci = luci.model.uci.cursor()
 local fs = require "luci.openclash"
 local sys = require "luci.sys"
+<<<<<<< HEAD
 local sid = arg[1]
 local file_path = ""
 
@@ -13,6 +14,16 @@ end
 
 if not fs.isfile(file_path) and file_path ~= "" then
 	file_path = luci.http.urldecode(file_path)
+=======
+local HTTP = require "luci.http"
+local DISP = require "luci.dispatcher"
+local sid = arg[1]
+local file_path = fs.get_file_path_from_request()
+
+if not file_path then
+	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "servers"))
+	return
+>>>>>>> upstream/master
 end
 
 font_red = [[<b style=color:red>]]
@@ -33,9 +44,15 @@ end
 
 m = Map(openclash, translate("Edit Group"))
 m.pageaction = false
+<<<<<<< HEAD
 m.redirect = luci.dispatcher.build_url("admin/services/openclash/servers%s" % file_path)
 if m.uci:get(openclash, sid) ~= "groups" then
 	luci.http.redirect(m.redirect)
+=======
+m.redirect = DISP.build_url("admin/services/openclash/servers") .. "?file=" .. HTTP.urlencode(file_path)
+if m.uci:get(openclash, sid) ~= "groups" then
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 	return
 end
 
@@ -314,11 +331,19 @@ o.inputtitle = translate("Commit Settings")
 o.inputstyle = "apply"
 o.write = function()
 	local old_name = m.uci:get(openclash, sid, "old_name") or ""
+<<<<<<< HEAD
 	local new_name = luci.http.formvalue("cbid.openclash." .. sid .. ".name") or m.uci:get(openclash, sid, "name")
 	sync_group_name(sid, old_name, new_name)
 	m.uci:set(openclash, sid, "old_name", new_name)
 	m.uci:commit(openclash)
 	luci.http.redirect(m.redirect)
+=======
+	local new_name = HTTP.formvalue("cbid.openclash." .. sid .. ".name") or m.uci:get(openclash, sid, "name")
+	sync_group_name(sid, old_name, new_name)
+	m.uci:set(openclash, sid, "old_name", new_name)
+	m.uci:commit(openclash)
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 end
 
 o = a:option(Button,"Back", " ")
@@ -326,7 +351,11 @@ o.inputtitle = translate("Back Settings")
 o.inputstyle = "reset"
 o.write = function()
 	m.uci:revert(openclash, sid)
+<<<<<<< HEAD
 	luci.http.redirect(m.redirect)
+=======
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 end
 
 m:append(Template("openclash/toolbar_show"))

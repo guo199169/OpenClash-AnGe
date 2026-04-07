@@ -5,6 +5,11 @@ local uci = luci.model.uci.cursor()
 local fs = require "luci.openclash"
 local sys = require "luci.sys"
 local json = require "luci.jsonc"
+<<<<<<< HEAD
+=======
+local HTTP = require "luci.http"
+local DISP = require "luci.dispatcher"
+>>>>>>> upstream/master
 local sid = arg[1]
 
 font_red = [[<b style=color:red>]]
@@ -22,9 +27,15 @@ m.description=translate("Convert Subscribe function of Online is Supported By su
 "<br/>"..translate("If you need to customize the external configuration file (subscription conversion template), please write it according to the instructions, upload it to the accessible location of the external network, and fill in the address correctly when using it")..
 "<br/>"..
 "<br/>"..translate("If you have a recommended external configuration file (subscription conversion template), you can modify by following The file format of /usr/share/openclash/res/sub_ini.list and pr")
+<<<<<<< HEAD
 m.redirect = luci.dispatcher.build_url("admin/services/openclash/config-subscribe")
 if m.uci:get(openclash, sid) ~= "config_subscribe" then
 	luci.http.redirect(m.redirect)
+=======
+m.redirect = DISP.build_url("admin/services/openclash/config-subscribe")
+if m.uci:get(openclash, sid) ~= "config_subscribe" then
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 	return
 end
 
@@ -182,7 +193,11 @@ o.inputtitle = translate("Commit Settings")
 o.inputstyle = "apply"
 o.write = function()
 	m.uci:commit(openclash)
+<<<<<<< HEAD
 	luci.http.redirect(m.redirect)
+=======
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 end
 
 o = a:option(Button,"Back", " ")
@@ -190,7 +205,11 @@ o.inputtitle = translate("Back Settings")
 o.inputstyle = "reset"
 o.write = function()
 	m.uci:revert(openclash, sid)
+<<<<<<< HEAD
 	luci.http.redirect(m.redirect)
+=======
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 end
 
 m:append(Template("openclash/toolbar_show"))

@@ -3,6 +3,7 @@ local m, s, o
 local openclash = "openclash"
 local uci = luci.model.uci.cursor()
 local fs = require "luci.openclash"
+<<<<<<< HEAD
 local file_path = ""
 
 for i = 1, #(arg) do
@@ -11,10 +12,23 @@ end
 
 if not fs.isfile(file_path) and file_path ~= "" then
 	file_path = luci.http.urldecode(file_path)
+=======
+local HTTP = require "luci.http"
+local DISP = require "luci.dispatcher"
+local file_path = fs.get_file_path_from_request()
+
+if not file_path then
+	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "config"))
+	return
+>>>>>>> upstream/master
 end
 
 m = Map(openclash, translate("Servers & Groups manage"))
 m.pageaction = false
+<<<<<<< HEAD
+=======
+m.redirect = DISP.build_url("admin/services/openclash/servers") .. "?file=" .. HTTP.urlencode(file_path)
+>>>>>>> upstream/master
 m.description=translate("Attention:")..
 "<br/>"..translate("1. Before modifying the configuration file, please click the button below to read the configuration file")..
 "<br/>"..translate("2. Proxy-providers address can be directly filled in the subscription link")..
@@ -28,6 +42,7 @@ gs.anonymous = true
 gs.addremove = true
 gs.sortable = true
 gs.template = "openclash/tblsection"
+<<<<<<< HEAD
 gs.extedit = luci.dispatcher.build_url("admin/services/openclash/groups-config/%s"..file_path)
 function gs.create(self, section)
 	local sid = TypedSection.create(self, section)
@@ -37,6 +52,17 @@ function gs.create(self, section)
 			self.map.uci:set("openclash", sid, "config", name)
 		end
 		luci.http.redirect(gs.extedit % sid)
+=======
+gs.extedit = DISP.build_url("admin/services/openclash/groups-config/%s").."?file="..file_path
+function gs.create(self, section)
+	local sid = TypedSection.create(self, section)
+	if sid then
+		local name = HTTP.formvalue("cbi.cts.tagname.".. self.config .. "." .. self.sectiontype)
+		if name and #name > 0 then
+			self.map.uci:set("openclash", sid, "config", name)
+		end
+		HTTP.redirect(gs.extedit % sid)
+>>>>>>> upstream/master
 		return
 	end
 end
@@ -70,6 +96,7 @@ ps.anonymous = true
 ps.addremove = true
 ps.sortable = true
 ps.template = "openclash/tblsection"
+<<<<<<< HEAD
 ps.extedit = luci.dispatcher.build_url("admin/services/openclash/proxy-provider-config/%s"..file_path)
 function ps.create(self, section)
 	local sid = TypedSection.create(self, section)
@@ -79,6 +106,17 @@ function ps.create(self, section)
 			self.map.uci:set("openclash", sid, "config", name)
 		end
 		luci.http.redirect(ps.extedit % sid)
+=======
+ps.extedit = DISP.build_url("admin/services/openclash/proxy-provider-config/%s").."?file="..file_path
+function ps.create(self, section)
+	local sid = TypedSection.create(self, section)
+	if sid then
+		local name = HTTP.formvalue("cbi.cts.tagname.".. self.config .. "." .. self.sectiontype)
+		if name and #name > 0 then
+			self.map.uci:set("openclash", sid, "config", name)
+		end
+		HTTP.redirect(ps.extedit % sid)
+>>>>>>> upstream/master
 		return
 	end
 end
@@ -111,6 +149,7 @@ ss.anonymous = true
 ss.addremove = true
 ss.sortable = true
 ss.template = "openclash/tblsection"
+<<<<<<< HEAD
 ss.extedit = luci.dispatcher.build_url("admin/services/openclash/servers-config/%s"..file_path)
 function ss.create(self, section)
 	local sid = TypedSection.create(self, section)
@@ -120,6 +159,17 @@ function ss.create(self, section)
 			self.map.uci:set("openclash", sid, "config", name)
 		end
 		luci.http.redirect(ss.extedit % sid)
+=======
+ss.extedit = DISP.build_url("admin/services/openclash/servers-config/%s").."?file="..file_path
+function ss.create(self, section)
+	local sid = TypedSection.create(self, section)
+	if sid then
+		local name = HTTP.formvalue("cbi.cts.tagname.".. self.config .. "." .. self.sectiontype)
+		if name and #name > 0 then
+			self.map.uci:set("openclash", sid, "config", name)
+		end
+		HTTP.redirect(ss.extedit % sid)
+>>>>>>> upstream/master
 		return
 	end
 end
@@ -223,6 +273,10 @@ o.inputstyle = "apply"
 o.write = function()
 	m.uci:commit("openclash")
 	luci.sys.call("/usr/share/openclash/yml_groups_get.sh \"%s\" 2>/dev/null" % file_path)
+<<<<<<< HEAD
+=======
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 end
 
 o = a:option(Button, "Commit", " ") 
@@ -230,6 +284,10 @@ o.inputtitle = translate("Commit Settings")
 o.inputstyle = "apply"
 o.write = function()
 	m.uci:commit("openclash")
+<<<<<<< HEAD
+=======
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 end
 
 o = a:option(Button, "Apply", " ")
@@ -238,13 +296,21 @@ o.inputstyle = "apply"
 o.write = function()
 	m.uci:commit("openclash")
 	luci.sys.call("/usr/share/openclash/yml_groups_set.sh \"%s\" >/dev/null 2>&1 &" % file_path)
+<<<<<<< HEAD
+=======
+	HTTP.redirect(m.redirect)
+>>>>>>> upstream/master
 end
 
 o = a:option(Button,"Back", " ")
 o.inputtitle = translate("Back Settings")
 o.inputstyle = "apply"
 o.write = function()
+<<<<<<< HEAD
 	luci.http.redirect(luci.dispatcher.build_url("admin", "services", "openclash", "config"))
+=======
+	HTTP.redirect(DISP.build_url("admin", "services", "openclash", "config"))
+>>>>>>> upstream/master
 end
 
 m:append(Template("openclash/toolbar_show"))

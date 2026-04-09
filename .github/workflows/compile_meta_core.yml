@@ -391,6 +391,7 @@ jobs:
           else
             echo "No changes to commit."
           fi
+<<<<<<< HEAD
 
       - name: Trim History to Last 10 Commits
         run: |
@@ -434,3 +435,5 @@ jobs:
           git branch -M __tmp_history_trim core
           git push --force origin core
           echo "Trim complete. New commit count: $(git rev-list --count HEAD)"
+=======
+>>>>>>> upstream/master

@@ -382,6 +382,7 @@ begin
    smart_collect = '${44}' == '1'
    smart_collect_size = '${45}'
    fake_ip_range6 = '${46}'
+   fake_ip_range6_enable = '${47}' == '1'
    default_dashboard = '$default_dashboard'
    yacd_type = '$yacd_type'
    dashboard_type = '$dashboard_type'
@@ -485,9 +486,13 @@ begin
             Value['dns']['enhanced-mode'] = 'fake-ip'
             Value['dns']['fake-ip-range'] = fake_ip_range
 <<<<<<< HEAD
+<<<<<<< HEAD
             if Value['dns']['ipv6']
 =======
             if Value['dns']['ipv6'] and fake_ip_range6 != '0'
+>>>>>>> upstream/master
+=======
+            if Value['dns']['ipv6'] and fake_ip_range6_enable
 >>>>>>> upstream/master
                Value['dns']['fake-ip-range6'] = fake_ip_range6
             end
